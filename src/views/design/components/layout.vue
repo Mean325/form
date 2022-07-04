@@ -66,23 +66,26 @@ function dragEnd() {
     </div>
     <div
       ref="container"
-      class="grow flex justify-between gap-3 z-10"
+      class="h-0 grow flex justify-between gap-3 z-10"
       @mousemove="dragMove"
       @mouseup="dragEnd"
       @mouseleave="dragEnd"
     >
       <div
-        class="w-60 p-3 rounded relative bg-white"
+        class="w-60 h-full p-3 rounded relative bg-white overflow-y-auto overflow-x-hidden"
         :style="{ 'width': boundSplit.left + 'px' }"
       >
         <slot name='left'></slot>
-        <div class="dragger dragger-left" @mousedown.prevent="(e) => dragStart(e, 'left')" />
+        <div class="dragger dragger-left hover:bg-yellow-100" @mousedown.prevent="(e) => dragStart(e, 'left')" />
       </div>
-      <div class="grow p-3 rounded bg-white">
+      <div class="grow p-3 rounded bg-white overflow-y-auto overflow-x-hidden">
         <slot name='center'></slot>
       </div>
-      <div class="w-60 p-3 rounded relative bg-white" :style="{ 'width': boundSplit.right + 'px' }">
-        <div class="dragger dragger-right" @mousedown.prevent="(e) => dragStart(e, 'right')" />
+      <div
+        class="w-60 p-3 rounded relative bg-white overflow-y-auto overflow-x-hidden"
+        :style="{ 'width': boundSplit.right + 'px' }"
+      >
+        <div class="dragger dragger-right hover:bg-yellow-100" @mousedown.prevent="(e) => dragStart(e, 'right')" />
         <slot name='right'></slot>
       </div>
     </div>
