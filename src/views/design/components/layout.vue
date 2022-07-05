@@ -1,5 +1,6 @@
 <script setup lang='ts'>
 import { ref, reactive, computed, inject } from 'vue'
+import DarkModeSwitch from '@/views/design/components/dark-mode-switch.vue';
 
 type DragPosition = 'left' | 'right';
 
@@ -61,7 +62,8 @@ function dragEnd() {
     <div class="h-14 px-4 rounded flex items-center justify-between bg-white z-10">
       <h1 class="font-bold text-lg">界面设计</h1>
       <div>
-        <van-button type="primary" size="small">保存</van-button>
+        <dark-mode-switch class='mr-3'></dark-mode-switch>
+        <el-button type="primary">保存</el-button>
       </div>
     </div>
     <div
