@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
+import { Draggable } from '@/utils/drag-drop-sort/draggable';
 
 const props = defineProps<{ isEdit?: boolean; data: Object }>();
 const emit = defineEmits(['remove']);
+
+const controlItem = ref();
 
 const direction = ref(1); // 1, -1
 const state = ref(1); // 0,1,2
@@ -14,6 +17,11 @@ const classObj = computed(() => {
 });
 // 状态在0，1，2间反复的切换。
 const timer = ref(0);
+
+// 初始化时使当前控件可拖动
+onMounted(() => {
+    new Draggable(controlItem.value);
+});
 
 watch(
     () => props.isEdit,
@@ -39,6 +47,7 @@ const remove = () => {
 
 <template>
     <div
+        ref="controlItem"
         class="control-item w-full flex flex-col items-center p-2 rounded relative hover:bg-gray-200"
         :class="classObj"
     >
