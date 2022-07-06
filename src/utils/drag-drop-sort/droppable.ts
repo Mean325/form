@@ -11,6 +11,11 @@ export class Droppable {
     // 列表排序方向
     direction: Direction = 'column';
 
+    // 子项的外部容器的class名称
+    itemContainerClass: string | null = null;
+    // 子项的外部容器的实例
+    itemContainer: HTMLElement;
+
     constructor(element: HTMLElement, options?: object) {
         if (!element) return;
         this.handleDragOver = this.handleDragOver.bind(this);
@@ -42,18 +47,43 @@ export class Droppable {
         scrollRef.setAttribute('__SCROLL_REF__', 'true');
         this.scrollRef = scrollRef;
 
+        // 添加子项的外部容器的对象
+        if (this.itemContainerClass) {
+            const itemContainer = document.createElement('div');
+            itemContainer.setAttribute('class', this.itemContainerClass);
+            this.itemContainer = itemContainer;
+        }
+
         this.element.addEventListener('dragover', this.handleDragOver);
         this.element.addEventListener('dragleave', this.handleDragLeave);
         this.element.addEventListener('drop', this.handleDrop);
+
+        // 重写拖动开始方法
+        rewrite.call(this, 'handleDragStart', 'handleDragStart', false);
     }
 
-    handleDragStart() {
+    handleDragStart(e: DragEvent) {
         console.log('重写生效');
+        const dragging = getDraggingInstance();
+
+        // 如果有放置的参照元素, 则修改为当前拖动元素的大小
+        if (this.dropRef) {
+            const a = document.getElementsByClassName('drop-ref')[0];
+            console.log(a === this.dropRef);
+            console.log(a);
+            console.log(this.dropRef);
+            const { offsetWidth, offsetHeight } = dragging.element;
+            this.dropRef.style.width = offsetWidth + 'px';
+            this.dropRef.style.height = offsetHeight + 'px';
+            this.dropRef.setAttribute('aaaa', 'bbbb');
+            console.log(this.dropRef.style);
+        }
     }
 
     handleDragOver(e) {
         e.preventDefault();
-        if (!getDraggingInstance()) return;
+        const dragging = getDraggingInstance();
+        if (!dragging) return;
         const { target, clientX, clientY } = e;
         if (this.isDropRef(target) || !(this.element.contains(target) || target === this.element)) return;
         if (target['__moveRect__']) return;
@@ -124,8 +154,17 @@ export class Droppable {
         const draggedId = e.dataTransfer.getData('text/plain');
         let target = getDraggingInstance().element;
         target = this.cloneNode(target);
+        // 如果有外部容器时, 将目标放入复制的容器中
+        if (this.itemContainer) {
+            const container = this.cloneNode(this.itemContainer);
+            container.appendChild(target);
+            target = container;
+        }
         this.element.insertBefore(target, this.dropRef);
-        this.element.removeChild(document.getElementsByClassName('drop-ref')[0]);
+        const dropRefDom = document.querySelector('.drop-ref');
+        if (dropRefDom) {
+            this.element.removeChild(dropRefDom);
+        }
         clearDraggingInstance();
     }
 
@@ -268,29 +307,21 @@ interface Options {
 // 方向
 type Direction = 'column' | 'row';
 
-rewrite('handleDragStart', 'handleDragStart');
 // connect("dragMove", "handleDragMove")
 // connect("dragEnd", "handleDragEnd", true)
 
 function rewrite(dragEvent: string, dropEvent: string, before?: boolean) {
+    const _this = this;
     const old = Draggable.prototype[dragEvent];
-    // Draggable.prototype[dragEvent] = before ? function (this: Draggable, e: PointerEvent) {
-    //     Droppable[dropEvent](this, e)
-    //     return old.call(this, e)
-    // } : function (this: Draggable, e: PointerEvent) {
-    //     const result = old.call(this, e)
-    //     Droppable[dropEvent](this, e)
-    //     return result
-    // }
     if (before) {
         Draggable.prototype[dragEvent] = function (this: Draggable, e: PointerEvent) {
-            Droppable.prototype[dropEvent](this, e);
+            Droppable.prototype[dropEvent].call(_this, e);
             return old.call(this, e);
         };
     } else {
         Draggable.prototype[dragEvent] = function (this: Draggable, e: PointerEvent) {
             const result = old.call(this, e);
-            Droppable.prototype[dropEvent](this, e);
+            Droppable.prototype[dropEvent].call(_this, e);
             return result;
         };
     }
