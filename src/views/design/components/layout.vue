@@ -116,4 +116,11 @@ function dragEnd() {
 .dragging .right {
   pointer-events: none;
 }
+
+/** 暗黑模式 */
+html.dark {
+    .bg-white {
+        background: #2C2C2C;
+    }
+}
 </style>

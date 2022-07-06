@@ -1,6 +1,6 @@
 <script setup>
 import {Repl, ReplStore} from '@vue/repl'
-import '@vue/repl/style.css'
+import '@vue/repl/styles.css'
 import {ref, reactive, version} from "vue";
 
 const defaultVueRuntimeURL = `https://unpkg.com/@vue/runtime-dom@${version}/dist/runtime-dom.esm-browser.js`;
